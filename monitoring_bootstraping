@@ -1,0 +1,42 @@
+[global]
+fsid = a7f64266-0894-4f1e-a635-d0aeaca0e993
+mon initial members = node1
+mon host = 10.1.23.54
+public network = 10.1.0.0/16
+cluster network = 10.1.23.0/24
+auth cluster required = cephx
+auth service required = cephx
+auth client required = cephx
+osd journal size = 1024
+osd pool default size = 1
+osd pool default min size = 1
+osd pool default pg num = 333
+osd pool default pgp num = 333
+osd crush chooseleaf type = 1
+
+export UUID=$(uuidgen)
+
+
+
+
+
+sudo ceph-authtool --create-keyring /tmp/ceph.mon.keyring --gen-key -n mon. --cap mon 'allow *'
+sudo ceph-authtool --create-keyring /etc/ceph/ceph.client.admin.keyring --gen-key -n client.admin --cap mon 'allow *' --cap osd 'allow *' --cap mds 'allow *' --cap mgr 'allow *'
+sudo ceph-authtool --create-keyring /var/lib/ceph/bootstrap-osd/ceph.keyring --gen-key -n client.bootstrap-osd --cap mon 'profile bootstrap-osd' --cap mgr 'allow r'
+sudo ceph-authtool /tmp/ceph.mon.keyring --import-keyring /etc/ceph/ceph.client.admin.keyring
+sudo ceph-authtool /tmp/ceph.mon.keyring --import-keyring /var/lib/ceph/bootstrap-osd/ceph.keyring
+sudo chown ceph:ceph /tmp/ceph.mon.keyring
+monmaptool --create --add ceph-manager 10.1.23.54 --fsid $UUID /tmp/monmap
+sudo -u ceph mkdir /var/lib/ceph/mon/ceph-ceph-manager 
+sudo -u ceph ceph-mon --mkfs -i ceph-manager --monmap /tmp/monmap --keyring /tmp/ceph.mon.keyring
+
+
+sudo systemctl start ceph-mon@ceph-manager
+sudo ceph -s
+ceph-status
+
+
+
+
+
+

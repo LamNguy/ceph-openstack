@@ -1,0 +1,12 @@
+sed -i 's/SELINUX=enforcing/SELINUX=disabled/g' /etc/sysconfig/selinux
+sed -i 's/SELINUX=enforcing/SELINUX=disabled/g' /etc/selinux/config
+
+Host ceph01
+    Hostname ceph01
+    User cephuser
+Host ceph02
+    Hostname ceph02
+    User cephuser
+Host ceph03
+    Hostname ceph03
+    User cephuser
